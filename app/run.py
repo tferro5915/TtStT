@@ -5,6 +5,7 @@ This script will open each DOCX file to extract text. It will split files based 
 TODO
     Add a speed setting. Probably requires another lib to adjust playback speed of the mp3.
     Consider changing to `pyttsx3` for more options (ie. speed and voice).
+    Make toc_depth == -1 lump all files into a single track. 
 """
 
 import os
@@ -14,6 +15,8 @@ from docx import Document
 
 def iter_headings(paragraphs):
     """Generator to get headings in document
+    
+    source: https://stackoverflow.com/questions/40388763/extracting-headings-text-from-word-doc
 
     :param paragraphs: Paragraphs from docx document
     :type paragraphs: Paragraphs

@@ -1,6 +1,6 @@
 # Text to Speech to Track (TtStT)
 
-This project converts MS Word document text, to speech then exports audio track files. Essentially it turns your documents into audio books, using computer generated voices. 
+This project converts MS Word document text, to speech then exports audio track files. Essentially it turns your documents into audio books, using computer generated voices. It will loop through multiple documents too. 
 
 - [Text to Speech to Track (TtStT)](#text-to-speech-to-track-ttstt)
 - [Running](#running)
@@ -11,10 +11,15 @@ This project converts MS Word document text, to speech then exports audio track 
 
 # Running
 
-1. Place your MS Word `.DOCX` files in `data` directory. This does not work with legacy `.DOC` files.
-2. Update `settings.json` for how many layers deep to split files out into separate tracks. This matches the heading depth in MS Word.
+1. Place your MS Word `.DOCX` files in `data` directory. This is not intended to work with legacy `.DOC` files. 
+2. Update `settings.json` for how many layers deep to split files out into separate tracks. This matches the heading depth in MS Word. 
+     1. `-1` will lump all documents into one track... someday (not implemented yet).
+     2. `0` will split tracks per document. 
+     3. `1` will split tracks per documents & the first heading level.
+     4. `2` will split tracks per document and each heading level down to the second.
+     5. etc. ...
 3. Run the script. 
-4. Harvest your audio track files. 
+4. Harvest your audio track files. Track titles start with document and header numbers separated by periods for easy sorting, and followed by the document name or header text. 
 
 *Note*: Setting `data_loc` should only be changed if you are not using the Docker options or you change the location of data in the Docker container. 
 

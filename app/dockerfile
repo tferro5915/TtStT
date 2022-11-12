@@ -19,3 +19,4 @@ ENTRYPOINT ["/bin/bash", "--login", "-c", "./startup.sh"]
 # docker build -t local/ttstt_app:latest .
 # docker run -v ./app:/app -v ./data:/data -it --rm local/ttstt_app
 # TODO figure out why this build/run is not working and fix it. Claims cannot find directories.
+# TODO consider switching to a smaller light weight distro like python:3.8-slim-buster. 
