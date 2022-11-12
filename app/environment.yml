@@ -1,0 +1,11 @@
+name: app
+
+channels:
+  - defaults
+  - anaconda
+  - conda-forge
+
+dependencies:
+  - python>=3.10
+  - gtts
+  - python-docx

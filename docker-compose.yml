@@ -1,0 +1,8 @@
+services:
+  app:
+    build: ./app
+    volumes:
+      - ./data:/data
+      - ./app:/app
+
+# docker-compose -p ttstt up --build

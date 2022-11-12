@@ -1,0 +1,21 @@
+FROM continuumio/miniconda3
+SHELL ["/bin/bash", "--login", "-c"]
+WORKDIR /app
+
+# RUN apt-get -y update && apt-get -y upgrade && apt-get install -y build-essential wget
+
+COPY ./* ./
+
+RUN conda env create -f environment.yml && \
+    conda init bash && \
+    conda activate app && \
+    echo 'conda activate app' >> ~/.bashrc
+
+RUN mkdir -p /data
+
+EXPOSE 8888 8050                                           
+ENTRYPOINT ["/bin/bash", "--login", "-c", "./startup.sh"]
+
+# docker build -t local/ttstt_app:latest .
+# docker run -v ./app:/app -v ./data:/data -it --rm local/ttstt_app
+# TODO figure out why this build/run is not working and fix it. Claims cannot find directories.
