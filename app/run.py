@@ -6,6 +6,11 @@ TODO
     Add a speed setting. Probably requires another lib to adjust playback speed of the mp3.
     Consider changing to `pyttsx3` for more options (ie. speed and voice).
     Make toc_depth == -1 lump all files into a single track. 
+    mp3 meta data?
+    mp3 cover art?
+    gtts apparently is rate limited because of online api, so maybe change out
+    Check for title style and use that for filename, then if none use docx filename
+    Handle disallowed file name char in windows
 """
 
 import os
