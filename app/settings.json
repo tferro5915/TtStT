@@ -1,4 +1,16 @@
 {
     "toc_depth": 2,
-    "data_loc": "/data/"
+    "data_loc": "/data/",
+    "online": {
+        "process": true,
+        "cool_down": 5,
+        "file_name_suffix": " online"
+    },
+    "offline": {
+        "process": true,
+        "volume": 1,
+        "rate": 200,
+        "voice_idx": 0,
+        "file_name_suffix": " offline"
+    }
 }

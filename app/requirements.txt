@@ -1,2 +1,1 @@
-gtts
-python-docx
+pyttsx3

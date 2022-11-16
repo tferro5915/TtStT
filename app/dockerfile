@@ -1,6 +1,9 @@
 FROM continuumio/miniconda3 AS build
+ENV DEBIAN_FRONTEND noninteractive
 
-COPY ./environment.yml ./
+COPY ./environment.yml ./requirements.txt ./
+RUN apt update && \ 
+    apt install -y build-essential
 RUN conda env create -f environment.yml && \
     conda install -c conda-forge conda-pack  && \
     conda-pack -n app -o /tmp/env.tar && \
@@ -8,12 +11,17 @@ RUN conda env create -f environment.yml && \
     rm /tmp/env.tar && \
     /venv/bin/conda-unpack
 
-FROM ubuntu:latest AS runtime
+
+FROM debian:buster-slim AS runtime
+ENV DEBIAN_FRONTEND noninteractive
 
 WORKDIR /app
-COPY --from=build /venv /venv
+RUN mkdir -p /data && \
+    apt update && \ 
+    apt install -y espeak ffmpeg libespeak1 && \
+    apt-get clean
 COPY ./run.py ./
-RUN mkdir -p /data
+COPY --from=build /venv /venv
 
 ENTRYPOINT ["/bin/bash", "--login", "-c", "./startup.sh"]
 

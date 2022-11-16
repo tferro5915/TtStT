@@ -18,8 +18,10 @@ This project converts MS Word document text, to speech then exports audio track 
      3. `1` will split tracks per documents & the first heading level.
      4. `2` will split tracks per document and each heading level down to the second.
      5. etc. ...
-3. Run the script. 
-4. Harvest your audio track files. Track titles start with document and header numbers separated by periods for easy sorting, and followed by the document name or header text. 
+3. Update `settings.json` for offline voice, volume, and speech rate as needed. Also set if files should be processed offline. 
+4. Update `settings.json` for online [API cool down](https://stackoverflow.com/questions/65980562/gtts-tts-gttserror-429-too-many-requests-from-tts-api-probable-cause-unknow) minutes to prevent getting blocked. Also set if files should be processed online. 
+5. Run the script with options below. 
+6. Harvest your audio track files. Track titles start with document and header numbers separated by periods for easy sorting, and followed by the document name or header text. 
 
 *Note*: Setting `data_loc` should only be changed if you are not using the Docker options or you change the location of data in the Docker container. 
 
@@ -43,5 +45,7 @@ This project converts MS Word document text, to speech then exports audio track 
 
 1. Change `data_loc` as needed to point to where your data is located. 
 2. Co-locate `settings.json` and `run.py`.
-3. Use the `environmen.yml` file to create your Conda environment or `requirments.txt` file to install the required pip dependencies. 
+3. Install dependencies & setup environment.
+   1. Conda: Use the `environmen.yml` file to create your Conda environment `conda env create -f environment.yml` or
+   2. PiP: add the dependencies from `environmen.yml` to `requirments.txt` then use pip with `requirments.txt` file to install the required pip dependencies `pip install -r requirements.txt`. 
 4. Run the python script as you normally would.

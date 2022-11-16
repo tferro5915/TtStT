@@ -3,9 +3,14 @@ name: app
 channels:
   - defaults
   - anaconda
-  - conda-forge
+  - conda-forge 
 
 dependencies:
-  - python>=3.10
-  - gtts
+  - python=3.7
   - python-docx
+  - pyaudio
+  - python-slugify
+  - gtts
+  - pip
+  - pip:
+      - -r requirements.txt
