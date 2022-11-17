@@ -1,6 +1,8 @@
 
 # Track files
 *.mp3
+*.m3u
+*.wav
 
 # MS Word documents, temporary files, and autosave files
 *.doc

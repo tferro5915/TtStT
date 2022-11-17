@@ -12,13 +12,13 @@ This project converts MS Word document text, to speech then exports audio track 
 # Running
 
 1. Place your MS Word `.DOCX` files in `data` directory. This is not intended to work with legacy `.DOC` files. 
-2. Update `settings.json` for how many layers deep to split files out into separate tracks. This matches the heading depth in MS Word. 
+2. Update `settings.json` for how many layers deep to split files out into separate tracks, and weather or not to make a playlist from the tracks. This matches the heading depth in MS Word. 
      1. `-1` will lump all documents into one track... someday (not implemented yet).
      2. `0` will split tracks per document. 
      3. `1` will split tracks per documents & the first heading level.
      4. `2` will split tracks per document and each heading level down to the second.
      5. etc. ...
-3. Update `settings.json` for offline voice, volume, and speech rate, etc. as needed. Also set if files should be processed offline. 
+3. Update `settings.json` for offline voice, volume, and speech rate, etc. as needed. Also set if files should be processed offline. Note each OS treats these differently so the settings will not match across OS's. 
 4. Update `settings.json` for online API cool down minutes between sections, and pause seconds between api tokens call to prevent getting [blocked](https://stackoverflow.com/questions/65980562/gtts-tts-gttserror-429-too-many-requests-from-tts-api-probable-cause-unknow). Also set if files should be processed online. 
 5. Run the script with options below. 
 6. Harvest your audio track files. Track titles start with document and header numbers separated by periods for easy sorting, and followed by the document name or header text. 

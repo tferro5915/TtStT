@@ -5,15 +5,12 @@ This script will open each DOCX file to extract text. It will split files based 
 TODO
     Make toc_depth == -1 lump all files into a single track.  
     mp3 meta data & cover art could be neat
+    mp3 title and author should probably be added
     Update gtts stream function to have pauses between each api call. Add time to json. Also add progress bar.
-    remove excess whitespace to reduce char count
-    remove "("")" from filenames for linux
     speed seems to compound if set each time, also seems to do nothing if only set once. 
+    Setting voice ID each time lib is reloaded seems to change voice to a different one. Setting only on first load seems to not be used by the next. Almost like each time it is set and reloaded the whole list is reordered.
     expand pyttsx3 with festival and pico2wave, add json select
-    fix lingering string "data" to var
-    if os.name == nt then do not escape spaces in filename
-    collapse filter to just one
-    make m3u playlist from audio files
+    make easier to use both in docker and out of docker
 """
 
 import os
@@ -29,6 +26,7 @@ import pyttsx3
 from docx import Document
 
 ext = ".mp3"
+os_name = os.name
 
 def get_title(paragraphs):
     """_summary_
@@ -114,16 +112,22 @@ def get_max_header(paragraphs, depth: int):
     return [len(str(x)) for x in maxes]
 
 def replace_invalid_char(filename: str) -> str:
-    """Replaces invalid characters in windows filenames to a comma.
+    """Replaces invalid characters in windows filenames with a comma, and invalid characters for some of the underlying linux commands, such as espeak.
 
     :param filename: input filename
     :type filename: str
     :return: fixed output filename
     :rtype: str
     """
-    invalid = '<>:"/\|?*'
+    invalid = '<>:"/\|?*'  # invalid in win file name, and linux command
     for char in invalid:
         filename = filename.replace(char, ',')
+    
+    if os_name != "nt":
+        invalid = '()'  # invalid in linux command
+        for char in invalid:
+            filename = filename.replace(char, ',')
+    
     return filename
 
 def more_wait(file: str):
@@ -150,6 +154,8 @@ def do_export(settings: Dict, text: str, filename: str):
     """
     if text != "":
         
+        text = " ".join(text.split())  # Remove excess whitespace
+        
         if settings["offline"]["process"]:
             filename_ = filename.replace(ext, settings["offline"]["file_name_suffix"] + ext)
             print(filename_, flush=True)
@@ -174,13 +180,14 @@ class TTS:
     def __init__(self, settings):
         importlib.reload(pyttsx3)
         self.engine = pyttsx3.init()
-        voices = self.engine.getProperty('voices') 
-        self.engine.setProperty('voice', voices[settings["offline"]["voice_idx"]].id)
-        self.engine.setProperty('volume', settings["offline"]["volume"])
-        self.engine.setProperty('rate', settings["offline"]["rate"])
+        #voices = self.engine.getProperty('voices') 
+        #self.engine.setProperty('voice', voices[settings["offline"]["voice_idx"]].id)
+        #self.engine.setProperty('volume', settings["offline"]["volume"])
+        #self.engine.setProperty('rate', settings["offline"]["rate"])
 
     def start(self, text, filename):
-        self.engine.save_to_file(text, filename.replace(' ','\ '))
+        filename_ = filename.replace(' ','\ ') if os_name != "nt" else filename
+        self.engine.save_to_file(text, filename_)
         self.engine.runAndWait()
         more_wait(filename)
         return
@@ -190,23 +197,19 @@ def main():
     """Main script
     """
 
-    files = os.listdir("/data")
-    files = list(filter(lambda x: x.endswith(".docx"), files))
-    files = list(filter(lambda x: not x.startswith("~$"), files))
-    file_count = 0
-
     with open("settings.json", "r") as f:
         settings = json.load(f)
     depth = max(0, settings["toc_depth"])
     data = settings["data_loc"]
     
-    if settings["offline"]["process"]:
-        engine = pyttsx3.init()
-        voices = engine.getProperty('voices') 
-        engine.setProperty('voice', voices[settings["offline"]["voice_idx"]].id)
-        engine.setProperty('volume', settings["offline"]["volume"])
-        engine.setProperty('rate', settings["offline"]["rate"])
-        print("Using Voice #" + str(settings["offline"]["voice_idx"]) + " of " + str(len(voices)), flush=True)
+    files = os.listdir(data)
+    files = list(filter(lambda x: x.endswith(".docx") and not x.startswith("~$"), files))
+    file_count = 0
+    
+    # if settings["offline"]["process"]:
+    #     engine = pyttsx3.init()
+    #     voices = engine.getProperty('voices') 
+    #     print("Using Voice #" + str(settings["offline"]["voice_idx"] + 1) + " of " + str(len(voices)), flush=True)
 
     for file in files:
         file_count = file_count + 1
@@ -239,6 +242,12 @@ def main():
 
         do_export(settings, text, data + name + ext)
 
+    if settings["playlist"]:
+        files = os.listdir(data)
+        files = list(filter(lambda x: x.endswith(ext), files))
+        with open(data + "Playlist.m3u", "w") as f:
+            f.write("\n".join(files))
+        
 
 if __name__ == "__main__":
     main()
