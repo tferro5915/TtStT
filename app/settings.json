@@ -4,6 +4,7 @@
     "online": {
         "process": true,
         "cool_down": 5,
+        "pause": 0.01,
         "file_name_suffix": " online"
     },
     "offline": {

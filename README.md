@@ -18,8 +18,8 @@ This project converts MS Word document text, to speech then exports audio track 
      3. `1` will split tracks per documents & the first heading level.
      4. `2` will split tracks per document and each heading level down to the second.
      5. etc. ...
-3. Update `settings.json` for offline voice, volume, and speech rate as needed. Also set if files should be processed offline. 
-4. Update `settings.json` for online [API cool down](https://stackoverflow.com/questions/65980562/gtts-tts-gttserror-429-too-many-requests-from-tts-api-probable-cause-unknow) minutes to prevent getting blocked. Also set if files should be processed online. 
+3. Update `settings.json` for offline voice, volume, and speech rate, etc. as needed. Also set if files should be processed offline. 
+4. Update `settings.json` for online API cool down minutes between sections, and pause seconds between api tokens call to prevent getting [blocked](https://stackoverflow.com/questions/65980562/gtts-tts-gttserror-429-too-many-requests-from-tts-api-probable-cause-unknow). Also set if files should be processed online. 
 5. Run the script with options below. 
 6. Harvest your audio track files. Track titles start with document and header numbers separated by periods for easy sorting, and followed by the document name or header text. 
 
