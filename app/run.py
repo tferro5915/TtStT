@@ -4,13 +4,11 @@ This script will open each DOCX file to extract text. It will split files based 
 
 TODO
     Make toc_depth == -1 lump all files into a single track.  
-    mp3 meta data & cover art could be neat
-    mp3 title and author should probably be added
+    mp3 tag: chapter sections (as subsections/subheaders), but probably requires processing each then combining.
     Update gtts stream function to have pauses between each api call. Add time to json. Also add progress bar.
-    speed seems to compound if set each time, also seems to do nothing if only set once. 
-    Setting voice ID each time lib is reloaded seems to change voice to a different one. Setting only on first load seems to not be used by the next. Almost like each time it is set and reloaded the whole list is reordered.
-    expand pyttsx3 with festival and pico2wave, add json select
-    make easier to use both in docker and out of docker
+    linux: speed seems to compound if set each time, also seems to do nothing if only set once. 
+    linux: Setting voice ID each time lib is reloaded seems to change voice to a different one. Setting only on first load seems to not be used by the next. Almost like each time it is set and reloaded the whole list is reordered.
+    linux: expand pyttsx3 with festival and pico2wave, add json select
 """
 
 import os
@@ -18,15 +16,18 @@ import json
 import time
 import math
 import importlib
-from gtts import gTTS
-from typing import Dict
-#from slugify import slugify
-#from tempfile import NamedTemporaryFile
+import logging
+import eyed3
 import pyttsx3
+import pydub
+from typing import Dict
+from gtts import gTTS
 from docx import Document
 
-ext = ".mp3"
+#eyed3.log.setLevel(logging.DEBUG)
+
 os_name = os.name
+track_count = 1
 
 def get_title(paragraphs):
     """_summary_
@@ -122,12 +123,12 @@ def replace_invalid_char(filename: str) -> str:
     invalid = '<>:"/\|?*'  # invalid in win file name, and linux command
     for char in invalid:
         filename = filename.replace(char, ',')
-    
+
     if os_name != "nt":
         invalid = '()'  # invalid in linux command
         for char in invalid:
             filename = filename.replace(char, ',')
-    
+
     return filename
 
 def more_wait(file: str):
@@ -140,36 +141,83 @@ def more_wait(file: str):
     """
     while not os.path.exists(file):
         time.sleep(0.1)
+    time.sleep(0.1)
     return
 
-def do_export(settings: Dict, text: str, filename: str):
+def do_export(settings: Dict, text: str, name: str):
     """Process exports
 
     :param settings: settings from json
     :type settings: Dict
     :param text: text to convert
     :type text: str
-    :param filename: filename to export to
-    :type filename: str
+    :param name: track name to export to
+    :type name: str
     """
     if text != "":
-        
-        text = " ".join(text.split())  # Remove excess whitespace
-        
-        if settings["offline"]["process"]:
-            filename_ = filename.replace(ext, settings["offline"]["file_name_suffix"] + ext)
-            print(filename_, flush=True)
+
+        text_ = " ".join(text.split())  # Remove excess whitespace
+
+        if not settings["online"]["process"]:
+            filename = settings["data_loc"] + name + settings["offline"]["file_name_suffix"] + ".wav"
+            print(filename[0:-4], flush=True)
             tts = TTS(settings)
-            tts.start(text, filename_)
+            tts.start(text_, filename)
             del(tts)
-            
-        if settings["online"]["process"]:
-            filename_ = filename.replace(ext, settings["online"]["file_name_suffix"] + ext)
-            print(filename_, flush=True)
-            audio = gTTS(text=text, lang="en", slow=False)
-            audio.save(filename_)
+        else:
+            filename = settings["data_loc"] + name + settings["online"]["file_name_suffix"] + ".wav"
+            print(filename[0:-4], flush=True)
+            audio = gTTS(text=text_, lang="en", slow=False)
+            audio.save(filename)
             time.sleep(math.ceil(settings["online"]["cool_down"] * 60)+.001)
+        do_tag(settings, name, filename, text)
     return
+
+def do_tag(settings: Dict, name: str, filename: str, text: str = None):
+    """Convert wav to mp3 and add id3 tags.
+
+    :param settings: settings from json
+    :type settings: Dict
+    :param name: track name to export to
+    :type name: str
+    :param filename: file name to export to
+    :type filename: str
+    :param text: text being converted, defaults to None
+    :type text: str, optional
+    """
+    global track_count
+    #importlib.reload(eyed3)
+
+    if settings["extension"] == ".mp3":
+        sound = pydub.AudioSegment.from_wav(filename)
+        os.remove(filename)
+        filename = filename[0:-3] + "mp3"
+        sound.export(filename, format="mp3")
+        file = eyed3.load(filename)
+
+        if file:
+            if not file.tag:
+                file.initTag(eyed3.id3.ID3_V2_3)
+
+            file.tag.title = name
+            file.tag.artist = settings["tag"]["artist"]
+            file.tag.album = settings["tag"]["album"]
+            file.tag.album_artist = settings["tag"]["album_artist"]
+            file.tag.recording_date = settings["tag"]["year"]
+            file.tag.track_num = track_count
+            file.tag.genre = "Audiobook"
+
+            if settings["tag"]["cover_art"]:
+                with open(settings["data_loc"] + settings["tag"]["cover_art"], "rb") as cover_art:
+                    file.tag.images.set(3, cover_art.read(), settings["tag"]["cover_art_mime"])
+
+            if settings["tag"]["text"] and text:
+                file.tag.lyrics.set(text)
+
+            file.tag.save()
+            del(file)
+            track_count = track_count + 1
+        
 
 class TTS:
     """Deal with some bugs in pyttsx3.
@@ -201,12 +249,12 @@ def main():
         settings = json.load(f)
     depth = max(0, settings["toc_depth"])
     data = settings["data_loc"]
-    
+
     files = os.listdir(data)
     files = list(filter(lambda x: x.endswith(".docx") and not x.startswith("~$"), files))
     file_count = 0
     
-    # if settings["offline"]["process"]:
+    # if not settings["online"]["process"]:
     #     engine = pyttsx3.init()
     #     voices = engine.getProperty('voices') 
     #     print("Using Voice #" + str(settings["offline"]["voice_idx"] + 1) + " of " + str(len(voices)), flush=True)
@@ -230,7 +278,7 @@ def main():
             if paragraph[3]: # Is header
                 current_depth = paragraph[2]  # Set current depth
             if paragraph[3] and current_depth <= depth:  # Is header & less than max (parent header)
-                do_export(settings, text, data + name + ext) # Export Last
+                do_export(settings, text, name) # Export Last
                 # Setup current level
                 counts[current_depth+1:-1] = [0] * (len(counts) - (current_depth+1))  # Reset counts below
                 counts[current_depth] = counts[current_depth] + 1  # Increment current depth count
@@ -240,11 +288,11 @@ def main():
 
             text = text + "\n" + paragraph[0].text
 
-        do_export(settings, text, data + name + ext)
+        do_export(settings, text, name)
 
-    if settings["playlist"]:
+    if settings["playlist"] and settings["extension"] == ".mp3":
         files = os.listdir(data)
-        files = list(filter(lambda x: x.endswith(ext), files))
+        files = list(filter(lambda x: x.endswith(settings["extension"]), files))
         with open(data + "Playlist.m3u", "w") as f:
             f.write("\n".join(files))
         

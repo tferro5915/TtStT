@@ -11,6 +11,13 @@ dependencies:
   - pyaudio
   - python-slugify
   - gtts
+  - pydub
+  - ffmpeg
   - pip
   - pip:
       - -r requirements.txt
+
+# conda env create -f environment.yml
+# 
+# conda activate myenv
+# conda env update --file local.yml --prune

@@ -1,11 +1,17 @@
 
-# Track files
+# Tracks
 *.mp3
 *.m3u
 *.wav
 
-# MS Word documents, temporary files, and autosave files
+# Documents
 *.doc
 *.docx
 ~$*
 *.zip
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.gif

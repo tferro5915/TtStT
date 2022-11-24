@@ -3,7 +3,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 COPY ./environment.yml ./requirements.txt ./
 RUN apt update && \ 
-    apt install -y build-essential
+    apt install -y build-essential libmagic-dev
 RUN conda env create -f environment.yml && \
     conda install -c conda-forge conda-pack  && \
     conda-pack -n app -o /tmp/env.tar && \
@@ -11,14 +11,13 @@ RUN conda env create -f environment.yml && \
     rm /tmp/env.tar && \
     /venv/bin/conda-unpack
 
-
 FROM debian:buster-slim AS runtime
 ENV DEBIAN_FRONTEND noninteractive
 
 WORKDIR /app
 RUN mkdir -p /data && \
     apt update && \ 
-    apt install -y espeak ffmpeg libespeak1 && \
+    apt install -y espeak ffmpeg libespeak1 libmagic-dev && \
     apt-get clean
 COPY ./run.py ./
 COPY --from=build /venv /venv

@@ -4,26 +4,54 @@ This project converts MS Word document text, to speech then exports audio track 
 
 - [Text to Speech to Track (TtStT)](#text-to-speech-to-track-ttstt)
 - [Running](#running)
+  - [Settings](#settings)
   - [Docker Hub](#docker-hub)
-  - [Docker Compose: Build & Run](#docker-compose-build--run)
-  - [Docker: Build & Run](#docker-build--run)
-  - [Python / Conda](#python--conda)
+  - [Docker Compose: Build \& Run](#docker-compose-build--run)
+  - [Docker: Build \& Run](#docker-build--run)
+  - [Conda \& Python](#conda--python)
 
 # Running
 
 1. Place your MS Word `.DOCX` files in `data` directory. This is not intended to work with legacy `.DOC` files. 
-2. Update `settings.json` for how many layers deep to split files out into separate tracks, and weather or not to make a playlist from the tracks. This matches the heading depth in MS Word. 
-     1. `-1` will lump all documents into one track... someday (not implemented yet).
-     2. `0` will split tracks per document. 
-     3. `1` will split tracks per documents & the first heading level.
-     4. `2` will split tracks per document and each heading level down to the second.
-     5. etc. ...
-3. Update `settings.json` for offline voice, volume, and speech rate, etc. as needed. Also set if files should be processed offline. Note each OS treats these differently so the settings will not match across OS's. 
-4. Update `settings.json` for online API cool down minutes between sections, and pause seconds between api tokens call to prevent getting [blocked](https://stackoverflow.com/questions/65980562/gtts-tts-gttserror-429-too-many-requests-from-tts-api-probable-cause-unknow). Also set if files should be processed online. 
-5. Run the script with options below. 
-6. Harvest your audio track files. Track titles start with document and header numbers separated by periods for easy sorting, and followed by the document name or header text. 
+2. Update `settings.json`. 
+3. Run the script with options below, with multiple Docker or non-Docker options. 
+4. Harvest your audio track files. Track titles start with document and header numbers separated by periods for easy sorting, and followed by the document name or header text. 
 
-*Note*: Setting `data_loc` should only be changed if you are not using the Docker options or you change the location of data in the Docker container. 
+## Settings
+
+Descriptions of parameters in `settings.json`.
+
+- toc_depth: How many layers deep to split files out into separate tracks. This matches the heading depth in MS Word.
+  1. `-1` will lump all documents into one track... someday (not implemented yet).
+  2. `0` will split tracks per document. 
+  3. `1` will split tracks per documents & the first heading level.
+  4. `2` will split tracks per document and each heading level down to the second.
+  5. etc. ...
+- data_loc: Location of your documents.
+- playlist: weather or not to make a playlist from the tracks.
+- extension: Export audio file extensions, (`".mp3"`, `".wav"`).
+- tag: Contains settings for MP3 ID3 tags.
+  - artist: Artist name.
+  - album_artist: Album artist.
+  - year: Year created (int).
+  - album: Album name.
+  - cover_art: Filename for image.
+  - cover_art_mime: Image MIME type (`"image/jpeg"`, `"image/png"`).
+  - text: Whether or not to include the processed text in lyrics (`true`, `false`).
+- online: Settings for processing TTS online. 
+  - process: Whether or not to process online (`true`, `false`).
+  - cool_down: API cool down minutes between sections to prevent getting [blocked](https://stackoverflow.com/questions/65980562/gtts-tts-gttserror-429-too-many-requests-from-tts-api-probable-cause-unknow).
+  - pause: API pause seconds between api tokens call to prevent getting [blocked](https://stackoverflow.com/questions/65980562/gtts-tts-gttserror-429-too-many-requests-from-tts-api-probable-cause-unknow).
+  - file_name_suffix: Apply file suffix to online processed files.
+- offline: Settings for processing TTS offline. 
+  - volume: Volume.
+  - rate: Voice speed.
+  - voice_idx: System voice index.
+  - file_name_suffix: Apply file suffix to offline processed files.
+
+*Notes*: 
+- Setting `data_loc` should only be changed if you are not using the Docker options or you change the location of data in the Docker container. 
+- Each OS treats `offline` settings differently so the settings will not match across OS's.
 
 ## Docker Hub
 
@@ -41,11 +69,9 @@ This project converts MS Word document text, to speech then exports audio track 
 3. Move to the root directory of the project.
 4. Run `docker run -v ./app:/app -v ./data:/data -it --rm local/ttstt_app`
 
-## Python / Conda
+## Conda & Python
 
-1. Change `data_loc` as needed to point to where your data is located. 
-2. Co-locate `settings.json` and `run.py`.
-3. Install dependencies & setup environment.
-   1. Conda: Use the `environmen.yml` file to create your Conda environment `conda env create -f environment.yml` or
-   2. PiP: add the dependencies from `environmen.yml` to `requirments.txt` then use pip with `requirments.txt` file to install the required pip dependencies `pip install -r requirements.txt`. 
-4. Run the python script as you normally would.
+1. Change `data_loc` as needed to point to where your data is located, probably `../data/`. 
+2. navigate to `app` folder or co-locate `settings.json` and `run.py`.
+3. Install dependencies & setup environment. Use the `environmen.yml` and `requirments.txt` files to create your Conda environment `conda env create -f environment.yml`.
+4. Activate Conda environment and run the python script as you normally would.

@@ -1,1 +1,6 @@
 pyttsx3
+eyeD3
+
+# Required in windows for coverart 
+python-magic; platform_system == "Windows"
+python-magic-bin; platform_system == "Windows"

@@ -2,17 +2,26 @@
     "toc_depth": 2,
     "data_loc": "/data/",
     "playlist": true,
+    "extension": ".mp3",
+    "tag": {
+        "artist": "Artist",
+        "album_artist": "Album Artist",
+        "year": 2022,
+        "album": "Album",
+        "cover_art": "",
+        "cover_art_mime": "image/jpeg",
+        "text": true
+    },
     "online": {
-        "process": true,
+        "process": false,
         "cool_down": 5,
         "pause": 0.01,
-        "file_name_suffix": " online"
+        "file_name_suffix": ""
     },
     "offline": {
-        "process": true,
         "volume": 1,
-        "rate": 200,
+        "rate": 300,
         "voice_idx": 0,
-        "file_name_suffix": " offline"
+        "file_name_suffix": ""
     }
 }
