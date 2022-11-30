@@ -1,5 +1,6 @@
 {
     "toc_depth": 2,
+    "trailing_zero": true,
     "data_loc": "/data/",
     "playlist": true,
     "extension": ".mp3",
@@ -20,7 +21,7 @@
     },
     "offline": {
         "volume": 1,
-        "rate": 300,
+        "rate": 150,
         "voice_idx": 0,
         "file_name_suffix": ""
     }

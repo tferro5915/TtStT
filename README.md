@@ -27,6 +27,7 @@ Descriptions of parameters in `settings.json`.
   3. `1` will split tracks per documents & the first heading level.
   4. `2` will split tracks per document and each heading level down to the second.
   5. etc. ...
+- trailing_zero: Add zero to the end of toc outline numbers. Turns out some systems sort space after numbers, not the normal space before numbers, this fixes it by adding a zero to the end.
 - data_loc: Location of your documents.
 - playlist: weather or not to make a playlist from the tracks.
 - extension: Export audio file extensions, (`".mp3"`, `".wav"`).

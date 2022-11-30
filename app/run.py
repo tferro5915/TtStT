@@ -272,7 +272,8 @@ def main():
         digits[0] = len(str(len(files)))
         title = get_title(paragraphs)
         title = title[0].text if title is not None else file[0:-5]
-        name = replace_invalid_char(str(file_count).zfill(digits[0]) + ". - " + title)  # Create name
+        junction = ".0. - " if settings["trailing_zero"] else ". - "
+        name = replace_invalid_char(str(file_count).zfill(digits[0]) + junction + title)  # Create name
 
         for paragraph in iter_paragraphs(paragraphs):
             if paragraph[3]: # Is header
@@ -282,7 +283,8 @@ def main():
                 # Setup current level
                 counts[current_depth+1:-1] = [0] * (len(counts) - (current_depth+1))  # Reset counts below
                 counts[current_depth] = counts[current_depth] + 1  # Increment current depth count
-                outline = [str(x).zfill(digits[i]) for i,x in enumerate(counts[0:current_depth+1])]  # counts to text with leading zero
+                outline_depth = current_depth + 2 if settings["trailing_zero"] and current_depth < depth else current_depth + 1
+                outline = [str(x).zfill(digits[i]) for i,x in enumerate(counts[0:outline_depth])]  # counts to text with leading zero
                 name = replace_invalid_char(".".join(outline) + ". - " + paragraph[0].text)  # Create name
                 text = ""  # Clear text
 
