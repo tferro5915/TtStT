@@ -9,6 +9,7 @@ TODO
     linux: speed seems to compound if set each time, also seems to do nothing if only set once. 
     linux: Setting voice ID each time lib is reloaded seems to change voice to a different one. Setting only on first load seems to not be used by the next. Almost like each time it is set and reloaded the whole list is reordered.
     linux: expand pyttsx3 with festival and pico2wave, add json select
+    Check if there are limits in processing the number of char/words and split input + combine output as needed
 """
 
 import os
